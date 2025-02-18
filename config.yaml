@@ -1,0 +1,5 @@
+cache_dir: .cache/ft_models
+log_dir: .logs/
+lr: 0.001
+batch_size: 32
+epochs: 3
