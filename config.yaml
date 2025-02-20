@@ -1,5 +1,7 @@
-cache_dir: .cache/ft_models
-log_dir: .logs/
-lr: 0.001
-batch_size: 32
-epochs: 3
+cache_dir: .cache
+checkpoint: FacebookAI/roberta-base
+model_name: roberta
+
+lr: 0.0003
+batch_size: 8
+epochs: 2

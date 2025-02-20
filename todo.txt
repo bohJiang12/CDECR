@@ -1,1 +1,4 @@
-
+- [x] weighted loss
+- [x] .yaml file consists of multiple configurations
+- [x] `compute_metric` function adds f1 score
+- [ ] Evaluation on the test set
