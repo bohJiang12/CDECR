@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 # Start importing modules
 from src.trainer import WeightedTrainer, compute_metrics
 from src.dataloader import DataLoader
-from src.utils import load_config
+from src.utils import load_config, display_hyperparams
 
 from typing import Union, Dict, Iterable
 from pathlib import Path
@@ -34,10 +34,6 @@ import evaluate
 
 import numpy as np
 
-# TODO:
-# - [ ] YAML config: a dict of lists
-# - [ ]
-
 
 def set_train_args(config: Dict) -> TrainingArguments:
     out_dir = Path(config['cache_dir']) / f"ft_{config['model_name']}"
@@ -45,7 +41,6 @@ def set_train_args(config: Dict) -> TrainingArguments:
 
     training_args = TrainingArguments(
         output_dir=out_dir / model_dir,
-        logging_dir=out_dir / model_dir / '.logs',
         logging_steps=500,
         learning_rate=config['lr'],
         weight_decay=0.001,
@@ -77,6 +72,7 @@ if __name__ == '__main__':
     args = get_args()
     data_dir = args.data
     configs = load_config(args.configFile)
+    display_hyperparams('Finetune Overview', configs)
 
     # -------------------------------
     # |     Data preprocessing      |
@@ -89,6 +85,14 @@ if __name__ == '__main__':
     checkpoint = configs['checkpoint']
     tokenizer = AutoTokenizer.from_pretrained(checkpoint)
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
+
+    # (Optional)
+    # ----------
+    # For decoder-only models, explicitly assigan <EOS> to <PAD>
+    if configs['decoder_only']:
+        tokenizer.pad_token_id = tokenizer.eos_token_id
+        tokenizer.pad_token = tokenizer.eos_token
+
 
     # Step 2:
     # ----------
@@ -115,6 +119,10 @@ if __name__ == '__main__':
     model = AutoModelForSequenceClassification.from_pretrained(checkpoint, num_labels=2)
     model = get_peft_model(model, peft_config)
 
+    # (Optional): for decoder-only models
+    if configs['decoder_only']:
+        model.config.pad_token_id = model.config.eos_token_id
+
     # Step 4:
     # ----------
     # training arguments config
@@ -122,6 +130,11 @@ if __name__ == '__main__':
     # cache_dir = Path.cwd() / '.cache'
     # cache_dir.mkdir(parents=True, exist_ok=True)
     train_args = set_train_args(configs)
+
+    # TODO:
+    # for arg in train_args:
+    #   trainer = ...
+
     trainer = WeightedTrainer(
         model=model,
         args=train_args,

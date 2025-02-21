@@ -1,0 +1,22 @@
+# Meta info of the config
+checkpoint: LLaMA
+model_name: llama
+decoder_only: True
+
+cache_dir: .cache
+
+# hyperparams:
+#   group_1:
+#     lr: 0.1
+#     batch_size: 32
+#   group_2:
+#     lr: 0.2
+#     batch_size: 64
+#   group_3:
+#     lr: 0.3
+#     batch_size: 128
+
+epochs: 2
+lr: [0.1, 0.2, 0.5, 0.7]
+batch_size: [8, 16, 32, 64]
+
