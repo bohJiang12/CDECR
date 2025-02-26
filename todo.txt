@@ -1,9 +1,0 @@
-- [x] weighted loss
-- [x] .yaml file consists of multiple configurations
-- [x] `compute_metric` function adds f1 score
-- [x] Evaluation on the test set
-- [ ] finetune script for llama
-- [ ] grid search in config.yaml
-- [ ] run all settings
-- [ ] draft report
-- [ ] make slides

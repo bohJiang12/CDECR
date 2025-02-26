@@ -3,18 +3,7 @@ The script is for evaluating a single fine-tuned model on the test set
 w/ different hyperparameter settings
 """
 # Set project root dir
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-from src.utils import *
-from src.dataloader import build_dataset_from
-from src.trainer import *
-
-from typing import Dict
-from argparse import ArgumentParser
-from pathlib import Path
-
+import numpy as np
 from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
@@ -22,14 +11,24 @@ from transformers import (
     TrainingArguments,
     Trainer
 )
-
-import numpy as np
+from pathlib import Path
+from argparse import ArgumentParser
+from typing import Dict
+from src.trainer import *
+from src.dataloader import build_dataset_from
+from src.utils import *
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 def get_args():
     parser = ArgumentParser()
-    parser.add_argument('-M', '--model', required=True, help="Name of the model to evaluate (either 'roberta' or 'llama')")
-    parser.add_argument('--decoderOnly', required=True, help="Option for indicating if the model is decoder-only model")
+    parser.add_argument('-M', '--model', required=True,
+                        help="Name of the model to evaluate (either 'roberta' or 'llama')")
+    parser.add_argument('--decoderOnly', required=True,
+                        help="Option for indicating if the model is decoder-only model")
+    parser.add_argument('--out', required=True, help="Path of output file")
     return parser.parse_args()
 
 
@@ -54,7 +53,8 @@ def eval_model_from(model_dir: Path | str,
         >>> eval_model_from(model_path)
         {'acc': 0.937, 'precision': 0.713, 'f1': 0.642}
     """
-    model = AutoModelForSequenceClassification.from_pretrained(model_dir, num_labels=2)
+    model = AutoModelForSequenceClassification.from_pretrained(
+        model_dir, num_labels=2)
     tokenizer = AutoTokenizer.from_pretrained(model_dir)
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
@@ -88,11 +88,13 @@ if __name__ == '__main__':
     args = get_args()
     model_name = args.model
     decoder_only = args.decoderOnly
+    out_file = args.out
 
     root_dir = set_wkdir_as_root(Path.cwd())
     out_dir = root_dir / '.out'
     testset_path = root_dir / 'data/event_pairs.test'
-    model_dir = root_dir / f".cache/ft_{model_name}"
+    # model_dir = root_dir / f".cache/ft_{model_name}"
+    model_dir = root_dir / f"models/{model_name}"
 
     # Start evaluating models under different settings
     report = {}
@@ -100,19 +102,20 @@ if __name__ == '__main__':
     for dir in model_dir.iterdir():
         if dir.is_dir():
             model_config = dir.stem + dir.suffix
-            model_path = list(dir.glob('checkpoint-*'))[0]  # assume only the best checkpoint is selected
+            # assume only the best checkpoint is selected
+            model_path = list(dir.glob('checkpoint-*'))[0]
             res = eval_model_from(model_dir=model_path,
                                   test_path=testset_path,
                                   out_dir=out_dir,
                                   decoder_only=decoder_only)
 
             report.update(
-                {model_config:
+                {f"{model_name}_{model_config}":
                     {'acc': '%.3f' % res['eval_acc']['accuracy'],
                         'precision': '%.3f' % res['eval_precision']['precision'],
                         'f1': '%.3f' % res['eval_F1']
-                    }
-                }
+                     }
+                 }
             )
 
-            update_report(report_path=root_dir/'report.json', new_data=report)
+            update_report(report_path=root_dir/out_file, new_data=report)

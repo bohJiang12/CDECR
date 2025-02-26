@@ -1,8 +1,14 @@
-cache_dir: .cache
+# Meta info of the config
+# checkpoint: FacebookAI/roberta-base
+# model_name: roberta
+# decoder_only: False
 checkpoint: Qwen/Qwen2.5-1.5B
 model_name: qwen
 decoder_only: True
 
-lr: 0.0003
-batch_size: 8
+cache_dir: models
 epochs: 2
+
+lr: [0.0001, 0.0003, 0.0005, 0.001]
+batch_size: [8, 16, 32, 64]
+
