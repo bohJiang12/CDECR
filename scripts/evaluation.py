@@ -3,6 +3,9 @@ The script is for evaluating a single fine-tuned model on the test set
 w/ different hyperparameter settings
 """
 # Set project root dir
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import numpy as np
 from transformers import (
     AutoModelForSequenceClassification,
@@ -17,9 +20,6 @@ from typing import Dict
 from src.trainer import *
 from src.dataloader import build_dataset_from
 from src.utils import *
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 def get_args():

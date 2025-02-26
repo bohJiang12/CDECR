@@ -8,3 +8,4 @@ test-trainer
 models
 docs
 todo
+*.json

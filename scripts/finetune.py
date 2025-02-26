@@ -3,6 +3,9 @@ The script is for finetuning large language models
 """
 
 # Set project root dir
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import numpy as np
 import evaluate
 from datasets import Dataset
@@ -23,9 +26,6 @@ from typing import Union, Dict, Iterable
 from src.utils import load_config, display_hyperparams
 from src.dataloader import DataLoader
 from src.trainer import WeightedTrainer, compute_metrics
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Start importing modules
 
